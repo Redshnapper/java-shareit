@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InMemoryItemRepository implements ItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
-    private static Long idGenerator = 1L;
+    protected static Long idGenerator = 1L;
     private final UserRepository userRepository;
 
 
