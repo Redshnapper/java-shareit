@@ -45,11 +45,7 @@ public class InMemoryItemRepository implements ItemRepository {
         if (!items.containsKey(id)) {
             throw new NotFoundException("Предмет с id " + id + " не найден");
         }
-        Item item = items.get(id);
-//        if (!item.getOwner().getId().equals(userId)) {
-//            throw new ValidationException("У данной вещи другой владелец!");
-//        }
-        return item;
+        return items.get(id);
     }
 
     @Override
