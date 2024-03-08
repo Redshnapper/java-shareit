@@ -1,0 +1,89 @@
+package ru.practicum.shareit.user.repository;
+
+import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.model.User;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public class InMemoryUserRepository implements UserRepository {
+    private final Map<Long, User> users = new HashMap<>();
+    protected static Long idGenerator = 1L;
+
+    @Override
+    public User add(User user) {
+        if (checkEmailNotExist(user)) {
+            throw new ValidationException("Емайл уже используется");
+        }
+        user.setId(idGenerator++);
+        users.put(user.getId(), user);
+        return user;
+    }
+
+    @Override
+    public List<User> getAll() {
+        return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public User update(User user) {
+        if (!users.containsKey(user.getId())) {
+            throw new NotFoundException("Пользователь с id " + user.getId() + " не найден");
+        }
+        if (checkEmailNotExist(user)) {
+            throw new ValidationException("Емайл уже используется");
+        }
+        User updatedUser = checkUpdatesAndUpdateUser(user);
+        users.put(updatedUser.getId(), updatedUser);
+        return updatedUser;
+    }
+
+    @Override
+    public User getById(Long id) {
+        if (!users.containsKey(id)) {
+            throw new NotFoundException("Пользователь с id " + id + " не найден");
+        }
+        return users.get(id);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!users.containsKey(id)) {
+            throw new NotFoundException("Пользователь с id " + id + " не найден");
+        }
+        users.remove(id);
+    }
+
+    private boolean checkEmailNotExist(User userForCheck) {
+        boolean check = users.values().stream()
+                .noneMatch(user -> user.getEmail().equals(userForCheck.getEmail()));
+        if (!check) {
+            check = checkSameEmail(userForCheck);
+        }
+        return !check;
+    }
+
+    private boolean checkSameEmail(User userForCheck) {
+        String email = users.get(userForCheck.getId()).getEmail();
+        return email.equals(userForCheck.getEmail());
+    }
+
+    private User checkUpdatesAndUpdateUser(User user) {
+        User updatedUser = users.get(user.getId());
+        String name = user.getName();
+        String email = user.getEmail();
+
+        if (name != null) {
+            updatedUser.setName(name);
+        }
+        if (email != null) {
+            updatedUser.setEmail(email);
+        }
+        return updatedUser;
+    }
+}
