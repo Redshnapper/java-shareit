@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class InMemoryUserRepository implements UserRepository {
+public class InMemoryUserRepository {
     private final Map<Long, User> users = new HashMap<>();
     protected static Long idGenerator = 1L;
 
-    @Override
+
     public User add(User user) {
         if (checkEmailNotExist(user)) {
             throw new ValidationException("Емайл уже используется");
@@ -25,12 +25,12 @@ public class InMemoryUserRepository implements UserRepository {
         return user;
     }
 
-    @Override
+
     public List<User> getAll() {
         return new ArrayList<>(users.values());
     }
 
-    @Override
+
     public User update(User user) {
         if (!users.containsKey(user.getId())) {
             throw new NotFoundException("Пользователь с id " + user.getId() + " не найден");
@@ -38,12 +38,13 @@ public class InMemoryUserRepository implements UserRepository {
         if (checkEmailNotExist(user)) {
             throw new ValidationException("Емайл уже используется");
         }
-        User updatedUser = checkUpdatesAndUpdateUser(user);
+        User savedUser = users.get(user.getId());
+        User updatedUser = checkUpdatesAndUpdateUser(user, savedUser);
         users.put(updatedUser.getId(), updatedUser);
         return updatedUser;
     }
 
-    @Override
+
     public User getById(Long id) {
         if (!users.containsKey(id)) {
             throw new NotFoundException("Пользователь с id " + id + " не найден");
@@ -51,7 +52,7 @@ public class InMemoryUserRepository implements UserRepository {
         return users.get(id);
     }
 
-    @Override
+
     public void deleteById(Long id) {
         if (!users.containsKey(id)) {
             throw new NotFoundException("Пользователь с id " + id + " не найден");
@@ -73,8 +74,7 @@ public class InMemoryUserRepository implements UserRepository {
         return email.equals(userForCheck.getEmail());
     }
 
-    private User checkUpdatesAndUpdateUser(User user) {
-        User updatedUser = users.get(user.getId());
+    public User checkUpdatesAndUpdateUser(User user, User updatedUser) {
         String name = user.getName();
         String email = user.getEmail();
 
