@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final BookingMapper mapper;
@@ -32,13 +30,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto addBooking(BookingCreateDto createDto, Long userId) {
-        log.info("Добавление нового букинга {}", createDto);
         Long itemId = createDto.getItemId();
         if (!checkItemAvailable(itemId)) {
             throw new BadRequestException("Предмет не доступен для бронирования");
-        }
-        if (checkBookingDate(createDto)) {
-            throw new BadRequestException("Дата указана не правильно");
         }
         final Booking booking = create(itemId, userId, createDto);
         if (userId.equals(booking.getItem().getOwner().getId())) {
@@ -49,8 +43,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto setApprove(Long userId, Boolean approved, Long bookingId) {
-        log.info("Запрос на смену статуса бронирования: userId = {}, approved = {}, bookingId = {}",
-                userId, approved, bookingId);
         Booking booking = getBooking(bookingId);
         User owner = getUser(userId);
         checkItemOwner(owner, booking);
@@ -61,7 +53,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto getById(Long userId, Long bookingId) {
-        log.info("Запрос на получение бронирования: userId = {}, bookingId = {}", userId, bookingId);
         Booking booking = getBooking(bookingId);
         Long bookerId = booking.getBooker().getId();
         Long ownerId = booking.getItem().getOwner().getId();
@@ -73,9 +64,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getAllByUserId(Long userId, String state) {
-        log.info("Получение списка бронирований для пользователя userId = {}, state = {}", userId, state);
         getUser(userId);
-
         switch (state) {
             case "ALL":
                 return bookingRepository.findBookingByBookerIdOrderByStartDesc(userId)
@@ -114,7 +103,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getAllByOwnerId(Long ownerId, String state) {
-        log.info("Получение списка бронирований для владельца userId = {}, state = {}", ownerId, state);
         getUser(ownerId);
 
         List<Item> itemsByOwnerId = itemRepository.findItemsByOwnerIdOrderById(ownerId);
@@ -183,13 +171,6 @@ public class BookingServiceImpl implements BookingService {
         if (!booking.getItem().getOwner().equals(owner)) {
             throw new BadRequestException("Только владелец может менять статус бронирования");
         }
-    }
-
-    private boolean checkBookingDate(BookingCreateDto createDto) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime end = createDto.getEnd();
-        LocalDateTime start = createDto.getStart();
-        return start.isAfter(end) || start.isEqual(end) || start.isBefore(now) || end.isBefore(now);
     }
 
     private Item getItem(Long itemId) {

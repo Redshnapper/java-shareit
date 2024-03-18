@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final InMemoryUserRepository memoryUserRepository;
@@ -24,20 +22,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto addUser(UserDto userDto) {
         final User user = mapper.toUser(userDto);
-        log.info("Добавление нового пользователя {}", user);
         return mapper.toDto(userRepository.save(user));
     }
 
     @Override
     public List<UserDto> getAllUsers() {
-        log.info("Получение всех пользователей");
         return userRepository.findAll().stream().map(mapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public UserDto updateUser(UserDto userDto, Long id) {
         final User user = mapper.toUser(userDto);
-        log.info("Обновление пользователя с id {} : {}", id, user);
         user.setId(id);
         User savedUser = userRepository.getReferenceById(id);
         User updateUser = memoryUserRepository.checkUpdatesAndUpdateUser(user, savedUser);
@@ -46,7 +41,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(Long id) {
-        log.info("Получение пользователя по id: {}", id);
         try {
             User user = userRepository.getReferenceById(id);
             return mapper.toDto(user);

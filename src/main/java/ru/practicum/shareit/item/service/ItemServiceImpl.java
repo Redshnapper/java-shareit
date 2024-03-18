@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingItemDto;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -47,14 +45,12 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemMapper.toItem(itemDto);
         checkUserExists(userId);
         setOwner(item, userId);
-        log.info("Добавление предмета {}, пользователем с id {}", item, userId);
         return itemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
     public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
         Item item = itemMapper.toItem(itemDto);
-        log.info("Обновление предмета {}, пользователем с id {}", item, userId);
         if (!checkItemOwner(itemId, userId)) {
             throw new NotFoundException();
         }
@@ -69,18 +65,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(Long userId, Long itemId) {
-        log.info("Получение предмета с id {}, пользователя {}", itemId, userId);
         checkItemExists(itemId);
         ItemDto itemDto = itemMapper.toDto(itemRepository.getReferenceById(itemId));
         itemDto.setComments(getCommentsForItem(itemId));
-
-        return getBookings(itemDto, userId, itemId);
+        return setItemBookings(itemDto, userId, itemId);
 
     }
 
     @Override
     public List<ItemDto> getAllUserItems(Long userId) {
-        log.info("Получение всех предметов пользователя {}", userId);
         List<ItemDto> collect = itemRepository.findItemsByOwnerIdOrderById(userId)
                 .stream()
                 .map(itemMapper::toDto)
@@ -88,7 +81,7 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> withBookings = new ArrayList<>();
         for (ItemDto itemDto : collect) {
             Long id = itemDto.getId();
-            withBookings.add(getBookings(itemDto, userId, id));
+            withBookings.add(setItemBookings(itemDto, userId, id));
         }
         return withBookings;
 
@@ -96,7 +89,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> searchItemsByName(String text) {
-        log.info("Поиск предметов содержащих в названии {}", text);
         if (!text.isEmpty()) {
             return itemRepository.findItemsByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndAvailableIsTrue(text, text)
                     .stream()
@@ -108,8 +100,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto addComment(Long userId, Long itemId, CommentText text) {
-        log.info("Добавление комментария userId = {}, itemId = {}, text {}", userId, itemId, text);
-
         List<Booking> bookings = bookingRepository.findBookingByItemIdAndBookerIdAndStatusNotInAndEndBefore(itemId,
                 userId, wrongStatuses, LocalDateTime.now());
         if (!bookings.isEmpty()) {
@@ -127,12 +117,6 @@ public class ItemServiceImpl implements ItemService {
             return modelMapper.map(comment, CommentDto.class);
         }
         throw new BadRequestException();
-    }
-
-    @Override
-    public List<CommentDto> test(Long userId, Long itemId, CommentText text) {
-        List<Comment> allById = commentRepository.findCommentByItemIdOrderById(itemId);
-        return allById.stream().map(comment -> modelMapper.map(comment, CommentDto.class)).collect(Collectors.toList());
     }
 
     private List<CommentDto> getCommentsForItem(Long itemId) {
@@ -170,7 +154,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private ItemDto getBookings(ItemDto itemDto, Long userId, Long itemId) {
+    private ItemDto setItemBookings(ItemDto itemDto, Long userId, Long itemId) {
         if (!checkItemOwner(itemId, userId)) {
             return itemDto;
         }
