@@ -14,20 +14,18 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class InMemoryItemRepository implements ItemRepository {
+public class InMemoryItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
     protected static Long idGenerator = 1L;
     private final UserRepository userRepository;
 
 
-    @Override
     public Item add(Item item) {
         item.setId(idGenerator++);
         items.put(item.getId(), item);
         return item;
     }
 
-    @Override
     public Item update(Item item, Long id, Long userId) {
         if (!items.containsKey(id)) {
             throw new NotFoundException("Предмет с id " + id + " не найден");
@@ -35,12 +33,14 @@ public class InMemoryItemRepository implements ItemRepository {
         if (!checkItemOwner(id, userId)) {
             throw new NotFoundException("У данной вещи другой владелец!");
         }
-        item.setOwner(userRepository.getById(userId));
+        item.setOwner(userRepository.getReferenceById(userId));
         item.setId(id);
-        return checkUpdatesAndUpdateItem(item);
+        Item savedItem = items.get(id);
+        Item updateItem = checkUpdatesAndUpdateItem(item, savedItem);
+        return items.put(id, updateItem);
     }
 
-    @Override
+
     public Item getById(Long userId, Long id) {
         if (!items.containsKey(id)) {
             throw new NotFoundException("Предмет с id " + id + " не найден");
@@ -48,14 +48,12 @@ public class InMemoryItemRepository implements ItemRepository {
         return items.get(id);
     }
 
-    @Override
     public List<Item> getAllUserItems(Long userId) {
         return items.values().stream()
                 .filter(item -> item.getOwner().getId().equals(userId))
                 .collect(Collectors.toList());
     }
 
-    @Override
     public List<Item> searchByName(String text) {
         if (text.isEmpty()) {
             return new ArrayList<>();
@@ -63,7 +61,7 @@ public class InMemoryItemRepository implements ItemRepository {
         return items.values().stream()
                 .filter(item -> (item.getName().toLowerCase().contains(text.toLowerCase())
                         || item.getDescription().toLowerCase().contains(text.toLowerCase()))
-                && item.getAvailable().equals(true))
+                        && item.getAvailable().equals(true))
                 .collect(Collectors.toList());
     }
 
@@ -72,8 +70,7 @@ public class InMemoryItemRepository implements ItemRepository {
 
     }
 
-    private Item checkUpdatesAndUpdateItem(Item item) {
-        Item updatedItem = items.get(item.getId());
+    public Item checkUpdatesAndUpdateItem(Item item, Item updatedItem) {
         String name = item.getName();
         String description = item.getDescription();
         Boolean available = item.getAvailable();
