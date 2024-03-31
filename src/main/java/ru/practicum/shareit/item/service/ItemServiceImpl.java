@@ -12,6 +12,7 @@ import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.CommentText;
@@ -19,13 +20,14 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.InMemoryItemRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.Request;
+import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,14 +40,21 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
     private final CommentRepository commentRepository;
     private final ModelMapper modelMapper;
+    private final RequestRepository requestRepository;
     private final List<BookingStatus> wrongStatuses = List.of(BookingStatus.WAITING, BookingStatus.REJECTED, BookingStatus.CANCELED);
 
     @Override
-    public ItemDto addItem(ItemDto itemDto, Long userId) {
+    public ItemRequestDto addItem(ItemRequestDto itemDto, Long userId) {
         Item item = itemMapper.toItem(itemDto);
         checkUserExists(userId);
         setOwner(item, userId);
-        return itemMapper.toDto(itemRepository.save(item));
+        Long requestId = itemDto.getRequestId();
+        if (requestId != null) {
+            Request request = requestRepository.findById(requestId).orElseThrow();
+            item.setRequest(request);
+        }
+        Item save = itemRepository.save(item);
+        return modelMapper.map(save, ItemRequestDto.class);
     }
 
     @Override
@@ -69,7 +78,6 @@ public class ItemServiceImpl implements ItemService {
         ItemDto itemDto = itemMapper.toDto(itemRepository.getReferenceById(itemId));
         itemDto.setComments(getCommentsForItem(itemId));
         return setItemBookings(itemDto, userId, itemId);
-
     }
 
     @Override
@@ -84,13 +92,12 @@ public class ItemServiceImpl implements ItemService {
             withBookings.add(setItemBookings(itemDto, userId, id));
         }
         return withBookings;
-
     }
 
     @Override
     public List<ItemDto> searchItemsByName(String text) {
         if (!text.isEmpty()) {
-            return itemRepository.findItemsByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndAvailableIsTrue(text, text)
+            return itemRepository.findItemsByNameContainsIgnoreCaseAndAvailableIsTrueOrDescriptionContainsIgnoreCaseAndAvailableIsTrue(text, text)
                     .stream()
                     .map(itemMapper::toDto)
                     .collect(Collectors.toList());
@@ -132,10 +139,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void checkItemExists(Long itemId) {
-        Optional<Item> item = itemRepository.findById(itemId);
-        if (item.isEmpty()) {
-            throw new NotFoundException("Пользователь с id " + itemId + " не найден");
-        }
+        itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Предмет с id " + itemId + " не найден"));
     }
 
     private void setOwner(Item item, Long userId) {
@@ -148,10 +152,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void checkUserExists(Long userId) {
-        Optional<User> check = userRepository.findById(userId);
-        if (check.isEmpty()) {
-            throw new NotFoundException("Пользователь с id " + userId + " не найден");
-        }
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 
     private ItemDto setItemBookings(ItemDto itemDto, Long userId, Long itemId) {

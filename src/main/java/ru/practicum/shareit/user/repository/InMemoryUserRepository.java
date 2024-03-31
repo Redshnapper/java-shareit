@@ -63,15 +63,7 @@ public class InMemoryUserRepository {
     private boolean checkEmailNotExist(User userForCheck) {
         boolean check = users.values().stream()
                 .noneMatch(user -> user.getEmail().equals(userForCheck.getEmail()));
-        if (!check) {
-            check = checkSameEmail(userForCheck);
-        }
         return !check;
-    }
-
-    private boolean checkSameEmail(User userForCheck) {
-        String email = users.get(userForCheck.getId()).getEmail();
-        return email.equals(userForCheck.getEmail());
     }
 
     public User checkUpdatesAndUpdateUser(User user, User updatedUser) {
@@ -85,5 +77,10 @@ public class InMemoryUserRepository {
             updatedUser.setEmail(email);
         }
         return updatedUser;
+    }
+
+    public void removeAll() {
+        idGenerator = 1L;
+        users.clear();
     }
 }

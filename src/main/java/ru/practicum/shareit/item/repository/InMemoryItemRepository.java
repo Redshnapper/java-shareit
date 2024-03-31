@@ -88,4 +88,9 @@ public class InMemoryItemRepository {
         return updatedItem;
 
     }
+
+    public void removeAll() {
+        idGenerator = 1L;
+        items.clear();
+    }
 }

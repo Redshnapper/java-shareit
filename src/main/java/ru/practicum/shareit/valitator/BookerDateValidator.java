@@ -7,8 +7,6 @@ import javax.validation.ConstraintValidatorContext;
 
 
 public class BookerDateValidator implements ConstraintValidator<BookingDate, BookingCreateDto> {
-
-
     @Override
     public void initialize(BookingDate constraint) {
     }
@@ -18,9 +16,7 @@ public class BookerDateValidator implements ConstraintValidator<BookingDate, Boo
         if (bookingCreateDto.getStart() == null || bookingCreateDto.getEnd() == null) {
             return false;
         }
-
         return !bookingCreateDto.getStart().isEqual(bookingCreateDto.getEnd())
                 && !bookingCreateDto.getEnd().isBefore(bookingCreateDto.getStart());
     }
-
 }
