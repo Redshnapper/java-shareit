@@ -52,7 +52,7 @@ public class BookingControllerTest {
 
         when(bookingService.addBooking(any(BookingCreateDto.class), any(Long.class))).thenReturn(bookingDto);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
         String expectedStart = createDto.getStart().format(formatter);
         String expectedEnd = createDto.getEnd().format(formatter);
 
@@ -68,6 +68,9 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.booker").isMap())
                 .andExpect(jsonPath("$.item").isMap());
     }
+
+
+
 
     @Test
     public void testCreateBooking_InvalidData() throws Exception {
