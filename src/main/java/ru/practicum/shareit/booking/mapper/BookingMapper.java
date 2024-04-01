@@ -10,12 +10,57 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 @Component
-public interface BookingMapper {
-    Booking toBooking(BookingCreateDto bookingDto);
+public class BookingMapper {
 
-    BookingDto toDto(Booking booking);
+    public Booking toBooking(BookingCreateDto bookingDto) {
+        if (bookingDto == null) {
+            return null;
+        } else {
+            Booking booking = new Booking();
+            booking.setId(bookingDto.getId());
+            booking.setStart(bookingDto.getStart());
+            booking.setEnd(bookingDto.getEnd());
+            return booking;
+        }
+    }
 
-    UserDto userToUserDto(User user);
+    public BookingDto toDto(Booking booking) {
+        if (booking == null) {
+            return null;
+        } else {
+            BookingDto bookingDto = new BookingDto();
+            bookingDto.setId(booking.getId());
+            bookingDto.setStart(booking.getStart());
+            bookingDto.setEnd(booking.getEnd());
+            bookingDto.setStatus(booking.getStatus());
+            bookingDto.setBooker(this.userToUserDto(booking.getBooker()));
+            bookingDto.setItem(this.itemToItemDto(booking.getItem()));
+            return bookingDto;
+        }
+    }
 
-    ItemDto itemToItemDto(Item item);
+    public UserDto userToUserDto(User user) {
+        if (user == null) {
+            return null;
+        } else {
+            UserDto userDto = new UserDto();
+            userDto.setId(user.getId());
+            userDto.setName(user.getName());
+            userDto.setEmail(user.getEmail());
+            return userDto;
+        }
+    }
+
+    public ItemDto itemToItemDto(Item item) {
+        if (item == null) {
+            return null;
+        } else {
+            ItemDto itemDto = new ItemDto();
+            itemDto.setId(item.getId());
+            itemDto.setName(item.getName());
+            itemDto.setDescription(item.getDescription());
+            itemDto.setAvailable(item.getAvailable());
+            return itemDto;
+        }
+    }
 }

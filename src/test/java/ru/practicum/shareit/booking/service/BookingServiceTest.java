@@ -15,10 +15,8 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -44,61 +42,7 @@ public class BookingServiceTest {
 
     @BeforeEach
     public void setUp() {
-        mapper = new BookingMapper() {
-            @Override
-            public Booking toBooking(BookingCreateDto bookingDto) {
-                if (bookingDto == null) {
-                    return null;
-                } else {
-                    Booking booking = new Booking();
-                    booking.setId(bookingDto.getId());
-                    booking.setStart(bookingDto.getStart());
-                    booking.setEnd(bookingDto.getEnd());
-                    return booking;
-                }
-            }
-
-            public BookingDto toDto(Booking booking) {
-                if (booking == null) {
-                    return null;
-                } else {
-                    BookingDto bookingDto = new BookingDto();
-                    bookingDto.setId(booking.getId());
-                    bookingDto.setStart(booking.getStart());
-                    bookingDto.setEnd(booking.getEnd());
-                    bookingDto.setStatus(booking.getStatus());
-                    bookingDto.setBooker(this.userToUserDto(booking.getBooker()));
-                    bookingDto.setItem(this.itemToItemDto(booking.getItem()));
-                    return bookingDto;
-                }
-            }
-
-            public UserDto userToUserDto(User user) {
-                if (user == null) {
-                    return null;
-                } else {
-                    UserDto userDto = new UserDto();
-                    userDto.setId(user.getId());
-                    userDto.setName(user.getName());
-                    userDto.setEmail(user.getEmail());
-                    return userDto;
-                }
-            }
-
-            public ItemDto itemToItemDto(Item item) {
-                if (item == null) {
-                    return null;
-                } else {
-                    ItemDto itemDto = new ItemDto();
-                    itemDto.setId(item.getId());
-                    itemDto.setName(item.getName());
-                    itemDto.setDescription(item.getDescription());
-                    itemDto.setAvailable(item.getAvailable());
-                    return itemDto;
-                }
-            }
-        };
-
+        mapper = new BookingMapper();
         bookingService = new BookingServiceImpl(
                 bookingRepository,
                 mapper,
