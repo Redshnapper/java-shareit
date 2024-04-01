@@ -23,11 +23,29 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
     private final InMemoryUserRepository memoryRepository = new InMemoryUserRepository();
-    private final UserMapper mapper = new UserMapper();
+    private UserMapper mapper;
     private UserService service;
 
     @BeforeEach
     public void setUp() {
+        mapper = new UserMapper() {
+            public User toUser(UserDto userDto) {
+                User.UserBuilder user = User.builder();
+                user.id(userDto.getId());
+                user.name(userDto.getName());
+                user.email(userDto.getEmail());
+                return user.build();
+            }
+
+            public UserDto toDto(User user) {
+                UserDto userDto = new UserDto();
+                userDto.setId(user.getId());
+                userDto.setName(user.getName());
+                userDto.setEmail(user.getEmail());
+                return userDto;
+            }
+        };
+
         service = new UserServiceImpl(
                 userRepository,
                 memoryRepository,

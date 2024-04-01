@@ -37,12 +37,29 @@ class RequestServiceTest {
     private UserRepository userRepository;
     @Mock
     private RequestRepository requestRepository;
-    private final RequestMapper mapper = new RequestMapper();
+    private RequestMapper mapper;
     private final ModelMapper modelMapper = new ModelMapper();
     private RequestService service;
 
     @BeforeEach
     void setUp() {
+        mapper = new RequestMapper() {
+            public RequestCreateDto toDto(Request request) {
+                RequestCreateDto requestCreateDto = new RequestCreateDto();
+                requestCreateDto.setId(request.getId());
+                requestCreateDto.setDescription(request.getDescription());
+                requestCreateDto.setCreated(request.getCreated());
+                return requestCreateDto;
+            }
+
+            public Request toRequest(RequestCreateDto createDto) {
+                Request request = new Request();
+                request.setId(createDto.getId());
+                request.setDescription(createDto.getDescription());
+                request.setCreated(createDto.getCreated());
+                return request;
+            }
+        };
         service = new RequestServiceImpl(
                 requestRepository,
                 userRepository,

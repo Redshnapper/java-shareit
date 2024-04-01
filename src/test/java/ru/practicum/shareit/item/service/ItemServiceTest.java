@@ -51,12 +51,41 @@ class ItemServiceTest {
     @Mock
     private RequestRepository requestRepository;
     private ItemService itemService;
-    private final ItemMapper mapper = new ItemMapper();
+    private ItemMapper mapper;
     private final ModelMapper modelMapper = new ModelMapper();
     private final InMemoryItemRepository memoryItemRepository = new InMemoryItemRepository(userRepository);
 
     @BeforeEach
     public void setUp() {
+        mapper = new ItemMapper() {
+            public ItemDto toDto(Item item) {
+                ItemDto itemDto = new ItemDto();
+                itemDto.setId(item.getId());
+                itemDto.setName(item.getName());
+                itemDto.setDescription(item.getDescription());
+                itemDto.setAvailable(item.getAvailable());
+                return itemDto;
+            }
+
+            public Item toItem(ItemDto itemDto) {
+                Item item = new Item();
+                item.setId(itemDto.getId());
+                item.setName(itemDto.getName());
+                item.setDescription(itemDto.getDescription());
+                item.setAvailable(itemDto.getAvailable());
+                return item;
+            }
+
+            public Item toItem(ItemRequestDto itemDto) {
+                Item item = new Item();
+                item.setId(itemDto.getId());
+                item.setName(itemDto.getName());
+                item.setDescription(itemDto.getDescription());
+                item.setAvailable(itemDto.getAvailable());
+                return item;
+            }
+        };
+
         itemService = new ItemServiceImpl(
                 itemRepository,
                 userRepository,
