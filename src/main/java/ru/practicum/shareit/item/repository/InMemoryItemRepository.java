@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InMemoryItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
-    protected static Long idGenerator = 1L;
+    protected Long idGenerator = 1L;
     private final UserRepository userRepository;
 
 
@@ -87,5 +87,10 @@ public class InMemoryItemRepository {
         items.put(item.getId(), updatedItem);
         return updatedItem;
 
+    }
+
+    public void removeAll() {
+        idGenerator = 1L;
+        items.clear();
     }
 }

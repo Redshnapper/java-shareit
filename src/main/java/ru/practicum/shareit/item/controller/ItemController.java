@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.CommentText;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.util.Constants;
@@ -20,8 +21,8 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto addItem(@RequestHeader(Constants.USER_HEADER_ID) Long userId,
-                           @RequestBody @Valid ItemDto itemDto) {
+    public ItemRequestDto addItem(@RequestHeader(Constants.USER_HEADER_ID) Long userId,
+                                  @RequestBody @Valid ItemRequestDto itemDto) {
         log.info("Добавление предмета item = {}, пользователем userId = {}", itemDto, userId);
         return itemService.addItem(itemDto, userId);
     }

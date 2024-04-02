@@ -16,15 +16,10 @@ import java.time.LocalDateTime;
 @BookingDate
 public class BookingCreateDto {
     private Long id;
-
     @FutureOrPresent
-    @Future
     private LocalDateTime start;
-
-    @FutureOrPresent
     @Future
     private LocalDateTime end;
-
     @NotNull
     private Long itemId;
 }

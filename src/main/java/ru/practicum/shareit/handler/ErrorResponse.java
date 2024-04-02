@@ -10,7 +10,5 @@ import java.util.Map;
 @Getter
 public class ErrorResponse {
     private final Map<String, String> errors = new HashMap<>();
-
-
 }
 

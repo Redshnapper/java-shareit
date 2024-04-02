@@ -45,6 +45,4 @@ public class UserController {
         log.info("Получение пользователя по id: {}", id);
         return userService.getUserById(id);
     }
-
-
 }
