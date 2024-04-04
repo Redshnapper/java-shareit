@@ -51,7 +51,7 @@ public class BookingControllerTest {
 
         when(bookingService.addBooking(any(BookingCreateDto.class), any(Long.class))).thenReturn(bookingDto);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS"); // (7S) чтобы работало локально, (6S) для гита))
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS"); // (7S) чтобы работало локально, (6S) для гита))
         String expectedStart = createDto.getStart().format(formatter);
         String expectedEnd = createDto.getEnd().format(formatter);
 
