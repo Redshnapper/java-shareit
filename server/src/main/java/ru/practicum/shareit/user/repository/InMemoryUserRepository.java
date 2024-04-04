@@ -1,8 +1,8 @@
 package ru.practicum.shareit.user.repository;
 
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class InMemoryUserRepository {
 
     public User add(User user) {
         if (checkEmailNotExist(user)) {
-            throw new ValidationException("Емайл уже используется");
+            throw new BadRequestException("Емайл уже используется");
         }
         user.setId(idGenerator++);
         users.put(user.getId(), user);
@@ -36,14 +36,13 @@ public class InMemoryUserRepository {
             throw new NotFoundException("Пользователь с id " + user.getId() + " не найден");
         }
         if (checkEmailNotExist(user)) {
-            throw new ValidationException("Емайл уже используется");
+            throw new BadRequestException("Емайл уже используется");
         }
         User savedUser = users.get(user.getId());
         User updatedUser = checkUpdatesAndUpdateUser(user, savedUser);
         users.put(updatedUser.getId(), updatedUser);
         return updatedUser;
     }
-
 
     public User getById(Long id) {
         if (!users.containsKey(id)) {

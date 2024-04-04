@@ -35,19 +35,6 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleInvalidException(MethodArgumentNotValidException e) {
-        ErrorResponse errorResponse = new ErrorResponse();
-        Map<String, String> exceptions = errorResponse.getErrors();
-        for (FieldError error : e.getBindingResult().getFieldErrors()) {
-            exceptions.put(error.getField(), error.getDefaultMessage());
-            log.error("Поле {} не прошло валидацию. Причина: {}.", error.getField(), error.getDefaultMessage());
-        }
-
-        return errorResponse;
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleAllException(Exception e) {
         ErrorResponse errorResponse = new ErrorResponse();

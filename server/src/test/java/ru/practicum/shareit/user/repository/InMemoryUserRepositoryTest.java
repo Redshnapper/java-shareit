@@ -3,8 +3,8 @@ package ru.practicum.shareit.user.repository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -49,7 +49,7 @@ class InMemoryUserRepositoryTest {
                 .email("email")
                 .build();
         repository.add(user);
-        Throwable exception = assertThrows(ValidationException.class, () -> repository.add(user2));
+        Throwable exception = assertThrows(BadRequestException.class, () -> repository.add(user2));
         assertEquals("Емайл уже используется", exception.getMessage());
     }
 
@@ -91,7 +91,7 @@ class InMemoryUserRepositoryTest {
                 .email("email")
                 .build();
         repository.add(user);
-        Throwable exception = assertThrows(ValidationException.class, () -> repository.update(update));
+        Throwable exception = assertThrows(BadRequestException.class, () -> repository.update(update));
         assertEquals("Емайл уже используется", exception.getMessage());
     }
 

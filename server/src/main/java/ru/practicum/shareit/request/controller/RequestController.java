@@ -32,8 +32,8 @@ public class RequestController {
 
     @GetMapping("all")
     public List<RequestItemsDto> requestsGetAll(@RequestHeader(Constants.USER_HEADER_ID) Long userId,
-                                                @RequestParam(name = "from", required = false, defaultValue = "0") Long from,
-                                                @RequestParam(name = "size", required = false, defaultValue = "10") Long size) {
+                                                @RequestParam(name = "from", defaultValue = "0") Long from,
+                                                @RequestParam(name = "size", defaultValue = "10") Long size) {
         log.info("Запрос на получение списка всех запросов постранично, from = {}, size = {}, пользователем userId = {}",
                 from, size, userId);
         return requestService.requestsGetAll(userId, from, size);
